@@ -1,0 +1,23 @@
+import { z } from 'zod/v4';
+import type { output as zOutput } from 'zod/v4';
+
+/**
+ * Schema for user login response (token response).
+ */
+export const LoginResponseSchema = z.strictObject({
+    access_token: z.string(),
+    token_type: z.literal('bearer'),
+    expires_in: z.number().positive(),
+});
+
+/**
+ * Schema for user login request payload.
+ */
+export const LoginRequestSchema = z.strictObject({
+    email: z.email(),
+    password: z.string().min(1),
+});
+
+// Type exports
+export type LoginResponse = zOutput<typeof LoginResponseSchema>;
+export type LoginRequest = zOutput<typeof LoginRequestSchema>;
