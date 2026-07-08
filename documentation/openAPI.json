@@ -1,5 +1,5 @@
 {
-    "openapi": "3.0.0",
+    "openapi": "3.2.0",
     "info": {
         "title": "Toolshop API",
         "description": "Toolshop REST API technical description",
@@ -11,7 +11,7 @@
     },
     "servers": [
         {
-            "url": "https://api-with-bugs.practicesoftwaretesting.com",
+            "url": "https://api.practicesoftwaretesting.com",
             "description": "Deployed environment"
         },
         {
@@ -103,7 +103,7 @@
                         "description": "The brandId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -139,7 +139,7 @@
                         "description": "The brandId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -185,7 +185,7 @@
                         "description": "The brandId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -215,6 +215,52 @@
                         "apiAuth": []
                     }
                 ]
+            },
+            "patch": {
+                "tags": ["Brand"],
+                "summary": "Partially update specific brand",
+                "description": "Partially update specific brand",
+                "operationId": "patchBrand",
+                "parameters": [
+                    {
+                        "name": "brandId",
+                        "in": "path",
+                        "description": "The brandId parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 1
+                    }
+                ],
+                "requestBody": {
+                    "description": "Partial brand request object. Only fields to be updated should be included.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BrandRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UpdateResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ItemNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/DuplicateConflictResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                }
             }
         },
         "/brands/search": {
@@ -255,6 +301,337 @@
                         "$ref": "#/components/responses/MethodNotAllowedResponse"
                     }
                 }
+            },
+            "query": {
+                "tags": ["Brand"],
+                "summary": "Retrieve specific brands matching the search query (HTTP QUERY)",
+                "description": "HTTP QUERY variant (RFC 10008) of `GET /brands/search`: the search criteria are sent as a JSON request body.",
+                "operationId": "querySearchBrand",
+                "requestBody": {
+                    "description": "Search criteria; same keys as the GET query parameters",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["q"],
+                                "properties": {
+                                    "q": {
+                                        "description": "A query phrase",
+                                        "type": "string",
+                                        "example": "Forge"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BrandResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type: the criteria must be sent as `application/json`"
+                    }
+                }
+            }
+        },
+        "/carts": {
+            "post": {
+                "tags": ["Cart"],
+                "summary": "Create a new cart",
+                "description": "Create a new cart",
+                "operationId": "createCart",
+                "responses": {
+                    "201": {
+                        "description": "Create cartId",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "CartCreatedResponse",
+                                    "properties": {
+                                        "id": {
+                                            "description": "",
+                                            "type": "string",
+                                            "example": "1234"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ItemNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
+        "/carts/{id}": {
+            "post": {
+                "tags": ["Cart"],
+                "summary": "Add item to cart",
+                "description": "Add item to cart",
+                "operationId": "addItem",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Cart ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Payload to add item to cart",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["product_id", "quantity"],
+                                "properties": {
+                                    "product_id": {
+                                        "type": "string",
+                                        "example": "01HHJC7RERZ0M3VDGS6X9HM33A"
+                                    },
+                                    "quantity": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Item added",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "CartItemAddedResponse",
+                                    "properties": {
+                                        "result": {
+                                            "description": "",
+                                            "type": "string",
+                                            "example": "item added or updated"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ItemNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
+        "/carts/{cartId}": {
+            "get": {
+                "tags": ["Cart"],
+                "summary": "Retrieve specific cart",
+                "description": "Retrieve specific cart",
+                "operationId": "getCart",
+                "parameters": [
+                    {
+                        "name": "cartId",
+                        "in": "path",
+                        "description": "The cartId parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CartResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ItemNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Cart"],
+                "summary": "Delete Cart",
+                "description": "Delete Cart",
+                "operationId": "deleteCart",
+                "parameters": [
+                    {
+                        "name": "cartId",
+                        "in": "path",
+                        "description": "The cartId parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ResourceNotFoundResponse"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/ConflictResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
+        "/carts/{cartId}/product/quantity": {
+            "put": {
+                "tags": ["Cart"],
+                "summary": "Update quantity of item in cart",
+                "description": "Update quantity of item in cart",
+                "operationId": "updateCartQuantity",
+                "parameters": [
+                    {
+                        "name": "cartId",
+                        "in": "path",
+                        "description": "Cart ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Payload to add item to cart",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["product_id", "quantity"],
+                                "properties": {
+                                    "product_id": {
+                                        "type": "string",
+                                        "example": "01HHJC7RERZ0M3VDGS6X9HM33A"
+                                    },
+                                    "quantity": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UpdateResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ResourceNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
+        "/carts/{cartId}/product/{productId}": {
+            "delete": {
+                "tags": ["Cart"],
+                "summary": "Delete product from cart",
+                "description": "Delete a product from Cart",
+                "operationId": "deleteProductFromCart",
+                "parameters": [
+                    {
+                        "name": "cartId",
+                        "in": "path",
+                        "description": "The cartId parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "The cartId parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ResourceNotFoundResponse"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/ConflictResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                }
             }
         },
         "/categories/tree": {
@@ -282,7 +659,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/CategoryResponse"
+                                        "$ref": "#/components/schemas/CategoryTreeResponse"
                                     }
                                 }
                             }
@@ -293,6 +670,48 @@
                     },
                     "405": {
                         "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    }
+                }
+            },
+            "query": {
+                "tags": ["Category"],
+                "summary": "Retrieve all categories including subcategories (HTTP QUERY)",
+                "description": "HTTP QUERY variant (RFC 10008) of `GET /categories/tree`: the criteria are sent as a JSON request body.",
+                "operationId": "queryCategoriesTree",
+                "requestBody": {
+                    "description": "Criteria; same keys as the GET query parameters",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "by_category_slug": {
+                                        "description": "Parent category slug",
+                                        "type": "string",
+                                        "example": "hand-tools"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoryTreeResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type: the criteria must be sent as `application/json`"
                     }
                 }
             }
@@ -367,11 +786,11 @@
                 }
             }
         },
-        "/categories/{categoryId}": {
+        "/categories/tree/{categoryId}": {
             "get": {
                 "tags": ["Category"],
-                "summary": "Retrieve specific category",
-                "description": "Retrieve specific category",
+                "summary": "Retrieve specific category (including subcategories)",
+                "description": "Retrieve specific category (including subcategories)",
                 "operationId": "getCategory",
                 "parameters": [
                     {
@@ -380,7 +799,7 @@
                         "description": "The categoryId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -391,7 +810,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/CategoryResponse"
+                                    "$ref": "#/components/schemas/CategoryTreeResponse"
                                 }
                             }
                         }
@@ -403,7 +822,92 @@
                         "$ref": "#/components/responses/MethodNotAllowedResponse"
                     }
                 }
+            }
+        },
+        "/categories/search": {
+            "get": {
+                "tags": ["Category"],
+                "summary": "Retrieve specific categories matching the search query",
+                "description": "Search is performed on the `name` column",
+                "operationId": "searchCategory",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "A query phrase",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoryResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ResourceNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    }
+                }
             },
+            "query": {
+                "tags": ["Category"],
+                "summary": "Retrieve specific categories matching the search query (HTTP QUERY)",
+                "description": "HTTP QUERY variant (RFC 10008) of `GET /categories/search`: the search criteria are sent as a JSON request body.",
+                "operationId": "querySearchCategory",
+                "requestBody": {
+                    "description": "Search criteria; same keys as the GET query parameters",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["q"],
+                                "properties": {
+                                    "q": {
+                                        "description": "A query phrase",
+                                        "type": "string",
+                                        "example": "tools"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/CategoryResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type: the criteria must be sent as `application/json`"
+                    }
+                }
+            }
+        },
+        "/categories/{categoryId}": {
             "put": {
                 "tags": ["Category"],
                 "summary": "Update specific category",
@@ -416,7 +920,7 @@
                         "description": "The categoryId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -462,7 +966,7 @@
                         "description": "The categoryId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -492,44 +996,50 @@
                         "apiAuth": []
                     }
                 ]
-            }
-        },
-        "/categories/search": {
-            "get": {
+            },
+            "patch": {
                 "tags": ["Category"],
-                "summary": "Retrieve specific categories matching the search query",
-                "description": "Search is performed on the `name` column",
-                "operationId": "searchCategory",
+                "summary": "Partially update specific category",
+                "description": "Partially update specific category",
+                "operationId": "patchCategory",
                 "parameters": [
                     {
-                        "name": "q",
-                        "in": "query",
-                        "description": "A query phrase",
+                        "name": "categoryId",
+                        "in": "path",
+                        "description": "The categoryId parameter in path",
                         "required": true,
                         "schema": {
                             "type": "string"
-                        }
+                        },
+                        "example": 1
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/CategoryResponse"
-                                    }
-                                }
+                "requestBody": {
+                    "description": "Partial category request object. Only fields to be updated should be included.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CategoryRequest"
                             }
                         }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UpdateResponse"
                     },
                     "404": {
                         "$ref": "#/components/responses/ResourceNotFoundResponse"
                     },
                     "405": {
                         "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/DuplicateConflictResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
                     }
                 }
             }
@@ -540,6 +1050,17 @@
                 "summary": "Retrieve messages",
                 "description": "`admin` retrieves all messages, `user` retrieves only related messages",
                 "operationId": "getMessages",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "pagenumber",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
@@ -555,22 +1076,25 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/components/schemas/ContactResponse"
+                                                "anyOf": [
+                                                    {
+                                                        "$ref": "#/components/schemas/ContactResponse"
+                                                    },
+                                                    {
+                                                        "$ref": "#/components/schemas/ContactResponseAuthenticated"
+                                                    }
+                                                ]
                                             }
                                         },
-                                        "next_page_url": {
+                                        "from": {
                                             "type": "integer",
                                             "example": 1
                                         },
-                                        "path": {
+                                        "last_page": {
                                             "type": "integer",
                                             "example": 1
                                         },
                                         "per_page": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "prev_page_url": {
                                             "type": "integer",
                                             "example": 1
                                         },
@@ -622,16 +1146,16 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "A token",
+                        "description": "Result of the insert",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "title": "AddContactMessageResponse",
                                     "properties": {
-                                        "access_token": {
+                                        "success": {
                                             "description": "",
                                             "type": "boolean",
-                                            "example": "super-secret-token"
+                                            "example": true
                                         }
                                     },
                                     "type": "object"
@@ -661,7 +1185,7 @@
                         "description": "The messageId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -724,7 +1248,7 @@
                         "description": "The messageId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -735,7 +1259,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ContactResponse"
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ContactResponse"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/ContactResponseAuthenticated"
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -770,7 +1301,7 @@
                         "description": "The messageId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -827,7 +1358,7 @@
                         "description": "The messageId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -840,13 +1371,13 @@
                                 "properties": {
                                     "status": {
                                         "type": "string",
+                                        "example": "IN_PROGRESS",
                                         "enum": [
                                             "NEW",
                                             "ON_HOLD",
                                             "IN_PROGRESS",
                                             "RESOLVED"
-                                        ],
-                                        "example": "IN_PROGRESS"
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -889,7 +1420,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "$ref": "#/components/schemas/FavoriteResponse"
+                                        "$ref": "#/components/schemas/FavoriteWithProductResponse"
                                     }
                                 }
                             }
@@ -974,7 +1505,7 @@
                         "description": "The favoriteId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -1018,7 +1549,7 @@
                         "description": "The favoriteId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -1084,6 +1615,17 @@
                 "summary": "Retrieve all invoices",
                 "description": "`admin` retrieves all invoices, `user` retrieves only related invoices",
                 "operationId": "getInvoices",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "pagenumber",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
@@ -1102,19 +1644,15 @@
                                                 "$ref": "#/components/schemas/InvoiceResponse"
                                             }
                                         },
-                                        "next_page_url": {
+                                        "from": {
                                             "type": "integer",
                                             "example": 1
                                         },
-                                        "path": {
+                                        "last_page": {
                                             "type": "integer",
                                             "example": 1
                                         },
                                         "per_page": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "prev_page_url": {
                                             "type": "integer",
                                             "example": 1
                                         },
@@ -1141,7 +1679,12 @@
                     "405": {
                         "$ref": "#/components/responses/MethodNotAllowedResponse"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
             },
             "post": {
                 "tags": ["Invoice"],
@@ -1190,6 +1733,62 @@
                 ]
             }
         },
+        "/invoices/guest": {
+            "post": {
+                "tags": ["Invoice"],
+                "summary": "Store new guest invoice",
+                "description": "Store new invoice for guest checkout",
+                "operationId": "storeGuestInvoice",
+                "requestBody": {
+                    "description": "Guest invoice request object",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/components/schemas/InvoiceRequest"
+                                    },
+                                    {
+                                        "properties": {
+                                            "guest_email": {
+                                                "description": "Guest email address",
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            "guest_first_name": {
+                                                "description": "Guest first name",
+                                                "type": "string"
+                                            },
+                                            "guest_last_name": {
+                                                "description": "Guest last name",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                }
+            }
+        },
         "/invoices/{invoiceId}": {
             "get": {
                 "tags": ["Invoice"],
@@ -1203,7 +1802,7 @@
                         "description": "The invoiceId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -1247,7 +1846,7 @@
                         "description": "The invoiceId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -1284,6 +1883,148 @@
                         "apiAuth": []
                     }
                 ]
+            },
+            "patch": {
+                "tags": ["Invoice"],
+                "summary": "Partially update specific invoice",
+                "description": "Partially update specific invoice",
+                "operationId": "patchInvoice",
+                "parameters": [
+                    {
+                        "name": "invoiceId",
+                        "in": "path",
+                        "description": "The invoiceId parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Partial invoice request object. Only fields to be updated should be included.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/InvoiceRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UpdateResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ItemNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/invoices/{invoice_number}/download-pdf": {
+            "get": {
+                "tags": ["Invoice"],
+                "summary": "Download already generated PDF of a specific invoice",
+                "description": "Download already generated PDF of a specific invoice",
+                "operationId": "downloadPDF",
+                "parameters": [
+                    {
+                        "name": "invoice_number",
+                        "in": "path",
+                        "description": "The invoice_number parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ItemNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/invoices/{invoice_number}/download-pdf-status": {
+            "get": {
+                "tags": ["Invoice"],
+                "summary": "Retrieve the status of the PDF.",
+                "description": "Retrieve the status of the PDF. The status can be INITIATED, IN_PROGRESS, COMPLETED",
+                "operationId": "downloadPDFStatus",
+                "parameters": [
+                    {
+                        "name": "invoice_number",
+                        "in": "path",
+                        "description": "The invoice_number parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": 1
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ItemNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
             }
         },
         "/invoices/{invoiceId}/status": {
@@ -1299,7 +2040,7 @@
                         "description": "The invoiceId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -1322,10 +2063,9 @@
                                     },
                                     "status_message": {
                                         "description": "A message describing the status",
-                                        "type": "string",
+                                        "type": ["string", "null"],
                                         "maxLength": 50,
-                                        "minLength": 5,
-                                        "nullable": true
+                                        "minLength": 5
                                     }
                                 },
                                 "type": "object"
@@ -1361,7 +2101,7 @@
             "get": {
                 "tags": ["Invoice"],
                 "summary": "Retrieve specific invoices matching the search query",
-                "description": "Search is performed on the `invoice_number`, `billing_address` and `status` column",
+                "description": "Search is performed on the `invoice_number`, `billing_street` and `status` column",
                 "operationId": "searchInvoice",
                 "parameters": [
                     {
@@ -1371,6 +2111,15 @@
                         "required": true,
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "pagenumber",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
                         }
                     }
                 ],
@@ -1392,19 +2141,15 @@
                                                 "$ref": "#/components/schemas/InvoiceResponse"
                                             }
                                         },
-                                        "next_page_url": {
+                                        "from": {
                                             "type": "integer",
                                             "example": 1
                                         },
-                                        "path": {
+                                        "last_page": {
                                             "type": "integer",
                                             "example": 1
                                         },
                                         "per_page": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "prev_page_url": {
                                             "type": "integer",
                                             "example": 1
                                         },
@@ -1431,32 +2176,35 @@
                     "405": {
                         "$ref": "#/components/responses/MethodNotAllowedResponse"
                     }
-                }
-            }
-        },
-        "/payment/check": {
-            "post": {
-                "tags": ["Payment"],
-                "summary": "Check payment",
-                "description": "Check payment",
-                "operationId": "checkPayment",
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "query": {
+                "tags": ["Invoice"],
+                "summary": "Retrieve specific invoices matching the search query (HTTP QUERY)",
+                "description": "HTTP QUERY variant (RFC 10008) of `GET /invoices/search`: the search criteria are sent as a JSON request body.",
+                "operationId": "querySearchInvoice",
                 "requestBody": {
+                    "description": "Search criteria; same keys as the GET query parameters",
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "title": "PaymentRequest",
+                                "required": ["q"],
                                 "properties": {
-                                    "method": {
+                                    "q": {
+                                        "description": "A query phrase",
                                         "type": "string",
-                                        "example": "Credit Card"
+                                        "example": "INV-2026"
                                     },
-                                    "account_name": {
+                                    "page": {
+                                        "description": "pagenumber",
                                         "type": "string",
-                                        "example": "John Doe"
-                                    },
-                                    "account_number": {
-                                        "type": "string",
-                                        "example": "9876543XX"
+                                        "example": "1"
                                     }
                                 },
                                 "type": "object"
@@ -1470,10 +2218,85 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "title": "PaginatedInvoiceResponse",
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/InvoiceResponse"
+                                            }
+                                        },
+                                        "from": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "to": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type: the criteria must be sent as `application/json`"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/payment/check": {
+            "post": {
+                "tags": ["Payment"],
+                "summary": "Check payment",
+                "description": "Check payment",
+                "operationId": "checkPayment",
+                "requestBody": {
+                    "description": "Payment request object",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
                                     "title": "PaymentResponse",
                                     "properties": {
-                                        "success": {
-                                            "type": "boolean",
+                                        "message": {
+                                            "type": "string",
                                             "example": "Success status"
                                         }
                                     },
@@ -1481,6 +2304,81 @@
                                 }
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/postcode-lookup": {
+            "get": {
+                "tags": ["Postcode"],
+                "summary": "Lookup address details by postcode",
+                "description": "Returns street, city and state for a given country/postcode/house number. The underlying source is configurable: a local faker driver (default) or an external HTTP service (e.g. a WireMock stub) when POSTCODE_LOOKUP_DRIVER=http.",
+                "operationId": "postcodeLookup",
+                "parameters": [
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 40
+                        }
+                    },
+                    {
+                        "name": "postcode",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 10
+                        }
+                    },
+                    {
+                        "name": "house_number",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Address details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "street": {
+                                            "type": "string"
+                                        },
+                                        "house_number": {
+                                            "type": "string"
+                                        },
+                                        "city": {
+                                            "type": "string"
+                                        },
+                                        "state": {
+                                            "type": "string"
+                                        },
+                                        "country": {
+                                            "type": "string"
+                                        },
+                                        "postcode": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    },
+                    "502": {
+                        "description": "Upstream lookup failure"
                     }
                 }
             }
@@ -1498,7 +2396,7 @@
                         "description": "Id of brand",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -1507,7 +2405,7 @@
                         "description": "Id of category",
                         "required": false,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -1536,6 +2434,15 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "pagenumber",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
@@ -1556,19 +2463,15 @@
                                                 "$ref": "#/components/schemas/ProductResponse"
                                             }
                                         },
-                                        "next_page_url": {
+                                        "from": {
                                             "type": "integer",
                                             "example": 1
                                         },
-                                        "path": {
+                                        "last_page": {
                                             "type": "integer",
                                             "example": 1
                                         },
                                         "per_page": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "prev_page_url": {
                                             "type": "integer",
                                             "example": 1
                                         },
@@ -1611,39 +2514,12 @@
                     }
                 },
                 "responses": {
-                    "201": {
-                        "description": "Returns when user is not authenticated",
+                    "200": {
+                        "description": "Successful operation",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "title": "StoreProductResponse",
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "name": {
-                                            "type": "string",
-                                            "example": "Lorum ipsum"
-                                        },
-                                        "description": {
-                                            "type": "string",
-                                            "example": "Lorum ipsum"
-                                        },
-                                        "price": {
-                                            "type": "number",
-                                            "example": 9.99
-                                        },
-                                        "is_location_offer": {
-                                            "type": "boolean",
-                                            "example": 1
-                                        },
-                                        "is_rental": {
-                                            "type": "boolean",
-                                            "example": 0
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/ProductResponse"
                                 }
                             }
                         }
@@ -1656,6 +2532,103 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                }
+            },
+            "query": {
+                "tags": ["Product"],
+                "summary": "Retrieve all products (HTTP QUERY)",
+                "description": "HTTP QUERY variant (RFC 10008) of `GET /products`: the filter criteria are sent as a JSON request body using the same keys as the GET query parameters.",
+                "operationId": "queryProducts",
+                "requestBody": {
+                    "description": "Filter criteria; same keys as the GET query parameters",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "by_brand": {
+                                        "description": "Id of brand",
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "by_category": {
+                                        "description": "Id of category",
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "is_rental": {
+                                        "description": "Indication if we like to retrieve rentals products",
+                                        "type": "string",
+                                        "example": "false"
+                                    },
+                                    "between": {
+                                        "description": "Can be used to define a price range, like: price,10,30",
+                                        "type": "string",
+                                        "example": "price,10,30"
+                                    },
+                                    "sort": {
+                                        "description": "Can be used to sort based on specific column value, like: name,asc OR name,desc OR price,asc OR price,desc",
+                                        "type": "string",
+                                        "example": "price,asc"
+                                    },
+                                    "page": {
+                                        "description": "pagenumber",
+                                        "type": "string",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "PaginatedProductResponse",
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProductResponse"
+                                            }
+                                        },
+                                        "from": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "to": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type: the criteria must be sent as `application/json`"
                     }
                 }
             }
@@ -1673,7 +2646,7 @@
                         "description": "The productId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -1684,7 +2657,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BrandResponse"
+                                    "$ref": "#/components/schemas/ProductResponse"
                                 }
                             }
                         }
@@ -1709,7 +2682,7 @@
                         "description": "The productId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -1751,7 +2724,7 @@
                         "description": "The productId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -1780,6 +2753,48 @@
                         "apiAuth": []
                     }
                 ]
+            },
+            "patch": {
+                "tags": ["Product"],
+                "summary": "Partially update specific product",
+                "description": "Partially update specific product",
+                "operationId": "patchProduct",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "description": "The productId parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Partial product request object. Only fields to be updated should be included.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ProductRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UpdateResponse"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ItemNotFoundResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                }
             }
         },
         "/products/{productId}/related": {
@@ -1795,7 +2810,7 @@
                         "description": "The productId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -1838,6 +2853,15 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "pagenumber",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
@@ -1858,19 +2882,15 @@
                                                 "$ref": "#/components/schemas/ProductResponse"
                                             }
                                         },
-                                        "next_page_url": {
+                                        "from": {
                                             "type": "integer",
                                             "example": 1
                                         },
-                                        "path": {
+                                        "last_page": {
                                             "type": "integer",
                                             "example": 1
                                         },
                                         "per_page": {
-                                            "type": "integer",
-                                            "example": 1
-                                        },
-                                        "prev_page_url": {
                                             "type": "integer",
                                             "example": 1
                                         },
@@ -1893,6 +2913,321 @@
                     },
                     "405": {
                         "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    }
+                }
+            },
+            "query": {
+                "tags": ["Product"],
+                "summary": "Retrieve specific products matching the search query (HTTP QUERY)",
+                "description": "HTTP QUERY variant (RFC 10008) of `GET /products/search`: the search criteria are sent as a JSON request body.",
+                "operationId": "querySearchProduct",
+                "requestBody": {
+                    "description": "Search criteria; same keys as the GET query parameters",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["q"],
+                                "properties": {
+                                    "q": {
+                                        "description": "A query phrase",
+                                        "type": "string",
+                                        "example": "hammer"
+                                    },
+                                    "page": {
+                                        "description": "pagenumber",
+                                        "type": "string",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "PaginatedProductResponse",
+                                    "properties": {
+                                        "current_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/ProductResponse"
+                                            }
+                                        },
+                                        "from": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "last_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "per_page": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "to": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "total": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type: the criteria must be sent as `application/json`"
+                    }
+                }
+            }
+        },
+        "/products/{productId}/specs": {
+            "get": {
+                "tags": ["Product Spec"],
+                "summary": "Retrieve specs for a product",
+                "operationId": "getProductSpecs",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProductSpecResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Product Spec"],
+                "summary": "Add a spec to a product",
+                "operationId": "storeProductSpec",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["spec_name", "spec_value"],
+                                "properties": {
+                                    "spec_name": {
+                                        "type": "string",
+                                        "example": "Weight"
+                                    },
+                                    "spec_value": {
+                                        "type": "string",
+                                        "example": "1.5"
+                                    },
+                                    "spec_unit": {
+                                        "type": ["string", "null"],
+                                        "example": "kg"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Spec created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductSpecResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/products/{productId}/specs/{specId}": {
+            "get": {
+                "tags": ["Product Spec"],
+                "summary": "Retrieve a specific spec",
+                "operationId": "getProductSpec",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "specId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductSpecResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": ["Product Spec"],
+                "summary": "Update a spec",
+                "operationId": "updateProductSpec",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "specId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "spec_name": {
+                                        "type": "string"
+                                    },
+                                    "spec_value": {
+                                        "type": "string"
+                                    },
+                                    "spec_unit": {
+                                        "type": ["string", "null"]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UpdateResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": ["Product Spec"],
+                "summary": "Delete a spec",
+                "operationId": "deleteProductSpec",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "specId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/product-specs/names": {
+            "get": {
+                "tags": ["Product Spec"],
+                "summary": "Retrieve all distinct spec names with their values",
+                "operationId": "getSpecNames",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
                     }
                 }
             }
@@ -2236,19 +3571,6 @@
                 "summary": "Get customers by country",
                 "description": "`Admin` role is required to get customers by country",
                 "operationId": "getCustomersByCountry",
-                "parameters": [
-                    {
-                        "name": "country",
-                        "in": "query",
-                        "description": "Specific year",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "default": "The Netherlands"
-                        },
-                        "example": 2021
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
@@ -2290,12 +3612,149 @@
                 ]
             }
         },
+        "/totp/setup": {
+            "post": {
+                "tags": ["TOTP"],
+                "summary": "Setup TOTP for the authenticated user",
+                "description": "Generates a TOTP secret and QR code URL for the user to scan and enables TOTP setup.",
+                "operationId": "setupTotp",
+                "responses": {
+                    "200": {
+                        "description": "TOTP setup successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "TOTPSetupResponse",
+                                    "properties": {
+                                        "secret": {
+                                            "description": "The TOTP secret key",
+                                            "type": "string"
+                                        },
+                                        "qrCodeUrl": {
+                                            "description": "URL for the QR code",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "TOTP already enabled or another error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "TOTPErrorResponse",
+                                    "properties": {
+                                        "error": {
+                                            "description": "Error message",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/totp/verify": {
+            "post": {
+                "tags": ["TOTP"],
+                "summary": "Verify TOTP code for the authenticated user",
+                "description": "Validates the submitted TOTP code and enables TOTP if verification is successful.",
+                "operationId": "verifyTotp",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "title": "TOTPVerifyRequest",
+                                "properties": {
+                                    "access_token": {
+                                        "description": "The user's access token",
+                                        "type": "string"
+                                    },
+                                    "totp": {
+                                        "description": "The 6-digit TOTP code",
+                                        "type": "string",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "TOTP verified successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "TOTPVerifyResponse",
+                                    "properties": {
+                                        "message": {
+                                            "description": "Success message",
+                                            "type": "string",
+                                            "example": "TOTP enabled successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid TOTP code or another error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "title": "TOTPErrorResponse",
+                                    "properties": {
+                                        "error": {
+                                            "description": "Error message",
+                                            "type": "string",
+                                            "example": "Invalid TOTP"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/users": {
             "get": {
                 "tags": ["User"],
                 "summary": "Retrieve all users",
                 "description": "Retrieve all users",
                 "operationId": "getUsers",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "pagenumber",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successful operation",
@@ -2407,6 +3866,7 @@
                         "application/json": {
                             "schema": {
                                 "title": "AccountRequest",
+                                "required": ["email", "password"],
                                 "properties": {
                                     "email": {
                                         "type": "string",
@@ -2458,12 +3918,13 @@
             "post": {
                 "tags": ["User"],
                 "summary": "Request a new password",
-                "description": "Request a new password, it actually sets the password to `welcome01`",
+                "description": "Request a new password, it actually sets the password to `welcome02`",
                 "operationId": "forgotPassword",
                 "requestBody": {
                     "content": {
                         "application/json": {
                             "schema": {
+                                "title": "ForgotPasswordRequest",
                                 "properties": {
                                     "email": {
                                         "type": "string",
@@ -2501,6 +3962,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
+                                "title": "ChangePasswordRequest",
                                 "properties": {
                                     "current_password": {
                                         "type": "string",
@@ -2663,7 +4125,7 @@
                         "description": "The userId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         },
                         "example": 1
                     }
@@ -2707,7 +4169,7 @@
                         "description": "The userId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -2760,7 +4222,7 @@
                         "description": "The userId parameter in path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 ],
@@ -2789,6 +4251,59 @@
                         "apiAuth": []
                     }
                 ]
+            },
+            "patch": {
+                "tags": ["User"],
+                "summary": "Partially update specific user",
+                "description": "Partially update specific user",
+                "operationId": "patchUser",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "description": "The userId parameter in path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Partial user request object. Only fields to be updated should be included.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/UpdateResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    },
+                    "405": {
+                        "$ref": "#/components/responses/MethodNotAllowedResponse"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/DuplicateConflictResponse"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/UnprocessableEntityResponse"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
             }
         },
         "/users/search": {
@@ -2805,6 +4320,15 @@
                         "required": true,
                         "schema": {
                             "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "pagenumber",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
                         }
                     }
                 ],
@@ -2827,6 +4351,62 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/ItemNotFoundResponse"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "query": {
+                "tags": ["User"],
+                "summary": "Retrieve specific users matching the search query (HTTP QUERY)",
+                "description": "HTTP QUERY variant (RFC 10008) of `GET /users/search`: the search criteria are sent as a JSON request body.",
+                "operationId": "querySearchUser",
+                "requestBody": {
+                    "description": "Search criteria; same keys as the GET query parameters",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["q"],
+                                "properties": {
+                                    "q": {
+                                        "description": "A query phrase",
+                                        "type": "string",
+                                        "example": "Jane"
+                                    },
+                                    "page": {
+                                        "description": "pagenumber",
+                                        "type": "string",
+                                        "example": "1"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedResponse"
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type: the criteria must be sent as `application/json`"
                     }
                 },
                 "security": [
@@ -2859,7 +4439,7 @@
                 "title": "BrandResponse",
                 "properties": {
                     "id": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "name": {
                         "type": "string",
@@ -2868,6 +4448,24 @@
                     "slug": {
                         "type": "string",
                         "example": "new-brand"
+                    }
+                },
+                "type": "object"
+            },
+            "CartItemResponse": {
+                "title": "CartResponse",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "CartResponse": {
+                "title": "CartResponse",
+                "properties": {
+                    "id": {
+                        "type": "string"
                     }
                 },
                 "type": "object"
@@ -2886,8 +4484,7 @@
                         "example": "new-category"
                     },
                     "parent_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": ["string", "null"]
                     }
                 },
                 "type": "object"
@@ -2896,11 +4493,10 @@
                 "title": "CategoryTreeResponse",
                 "properties": {
                     "id": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "parent_id": {
-                        "type": "string",
-                        "nullable": true
+                        "type": ["string", "null"]
                     },
                     "name": {
                         "type": "string",
@@ -2923,11 +4519,10 @@
                 "title": "CategoryResponse",
                 "properties": {
                     "id": {
-                        "type": "integer"
+                        "type": "string"
                     },
                     "parent_id": {
-                        "type": "integer",
-                        "nullable": true
+                        "type": ["string", "null"]
                     },
                     "name": {
                         "type": "string",
@@ -2936,6 +4531,12 @@
                     "slug": {
                         "type": "string",
                         "example": "new-category"
+                    },
+                    "sub_categories": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CategoryResponse"
+                        }
                     }
                 },
                 "type": "object"
@@ -2950,12 +4551,15 @@
                     },
                     "id": {
                         "description": "",
-                        "type": "integer",
+                        "type": "string",
                         "example": "1"
                     },
                     "created_at": {
                         "type": "string",
                         "example": "2022-08-01 08:24:56"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/UserResponse"
                     }
                 },
                 "type": "object"
@@ -2967,26 +4571,26 @@
                     "name": {
                         "description": "Sender name",
                         "type": "string",
-                        "maxLength": 120,
-                        "example": "John Doe"
+                        "example": "John Doe",
+                        "maxLength": 120
                     },
                     "email": {
                         "description": "Required when not authenticated",
                         "type": "string",
-                        "maxLength": 120,
-                        "example": "john@doe.example"
+                        "example": "john@doe.example",
+                        "maxLength": 256
                     },
                     "subject": {
                         "description": "",
                         "type": "string",
-                        "maxLength": 120,
-                        "example": "website"
+                        "example": "website",
+                        "maxLength": 120
                     },
                     "message": {
                         "description": "",
                         "type": "string",
-                        "maxLength": 250,
-                        "example": "Something is wrong with the website."
+                        "example": "Something is wrong with the website.",
+                        "maxLength": 250
                     }
                 },
                 "type": "object"
@@ -3043,7 +4647,7 @@
                     },
                     "id": {
                         "description": "",
-                        "type": "integer",
+                        "type": "string",
                         "example": "1"
                     },
                     "created_at": {
@@ -3058,7 +4662,7 @@
                 "properties": {
                     "user_id": {
                         "description": "",
-                        "type": "integer",
+                        "type": "string",
                         "example": "John Doe"
                     },
                     "name": {
@@ -3088,7 +4692,7 @@
                     },
                     "id": {
                         "description": "",
-                        "type": "integer",
+                        "type": "string",
                         "example": "1"
                     },
                     "created_at": {
@@ -3103,11 +4707,11 @@
                 "description": "A detailed contact message response with user and replies",
                 "properties": {
                     "id": {
-                        "type": "integer",
+                        "type": "string",
                         "example": "01jnx2z1a6s8qx9z3hhqy3rdyp"
                     },
                     "user_id": {
-                        "type": "integer",
+                        "type": "string",
                         "example": "01JNX24JV5Q3QFDB2ZPTRBMFN8"
                     },
                     "name": {
@@ -3146,11 +4750,32 @@
                 },
                 "type": "object"
             },
+            "DownloadResponse": {
+                "title": "DownloadResponse",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "filename": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
             "FavoriteRequest": {
                 "title": "FavoriteRequest",
                 "properties": {
                     "product_id": {
-                        "type": "integer"
+                        "type": "string"
                     }
                 },
                 "type": "object"
@@ -3159,16 +4784,16 @@
                 "title": "FavoriteResponse",
                 "properties": {
                     "product_id": {
-                        "type": "integer",
-                        "example": 1234
+                        "type": "string",
+                        "example": "1234"
                     },
                     "user_id": {
-                        "type": "integer",
-                        "example": 1234
+                        "type": "string",
+                        "example": "1234"
                     },
                     "id": {
-                        "type": "integer",
-                        "example": 1234
+                        "type": "string",
+                        "example": "1234"
                     }
                 },
                 "type": "object"
@@ -3177,16 +4802,16 @@
                 "title": "FavoriteResponse",
                 "properties": {
                     "product_id": {
-                        "type": "integer",
-                        "example": 1234
+                        "type": "string",
+                        "example": "1234"
                     },
                     "user_id": {
-                        "type": "integer",
-                        "example": 1234
+                        "type": "string",
+                        "example": "1234"
                     },
                     "id": {
-                        "type": "integer",
-                        "example": 1234
+                        "type": "string",
+                        "example": "1234"
                     },
                     "product": {
                         "$ref": "#/components/schemas/ProductResponse"
@@ -3195,61 +4820,156 @@
                 "type": "object"
             },
             "InvoiceRequest": {
-                "title": "InvoiceRequest",
+                "required": [
+                    "billing_street",
+                    "billing_city",
+                    "billing_state",
+                    "billing_country",
+                    "billing_postal_code",
+                    "payment_method",
+                    "payment_details",
+                    "cart_id"
+                ],
                 "properties": {
-                    "user_id": {
-                        "type": "integer"
-                    },
-                    "billing_address": {
+                    "billing_street": {
                         "type": "string"
                     },
                     "billing_city": {
                         "type": "string"
                     },
-                    "billing_country": {
-                        "type": "string"
-                    },
                     "billing_state": {
                         "type": "string"
                     },
-                    "billing_postcode": {
+                    "billing_country": {
                         "type": "string"
                     },
-                    "total": {
-                        "type": "number"
+                    "billing_postal_code": {
+                        "type": "string"
                     },
                     "payment_method": {
                         "type": "string",
-                        "example": "Cash on Delivery"
+                        "enum": [
+                            "bank-transfer",
+                            "cash-on-delivery",
+                            "credit-card",
+                            "buy-now-pay-later",
+                            "gift-card"
+                        ]
                     },
-                    "payment_account_name": {
-                        "type": "string",
-                        "example": "Jogn Doe"
+                    "cart_id": {
+                        "type": "string"
                     },
-                    "payment_account_number": {
-                        "type": "string",
-                        "example": "0987654345"
-                    },
-                    "invoice_items": {
-                        "type": "array",
-                        "items": {
-                            "properties": {
-                                "product_id": {
-                                    "type": "integer",
-                                    "example": 9
-                                },
-                                "quantity": {
-                                    "type": "integer",
-                                    "example": 1
-                                },
-                                "unit_price": {
-                                    "type": "number",
-                                    "format": "float",
-                                    "example": 12.01
-                                }
+                    "payment_details": {
+                        "type": "object",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/BankTransferDetails"
                             },
-                            "type": "object"
-                        }
+                            {
+                                "$ref": "#/components/schemas/CreditCardDetails"
+                            },
+                            {
+                                "$ref": "#/components/schemas/GiftCardDetails"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BuyNowPayLaterDetails"
+                            },
+                            {
+                                "title": "CashOnDeliveryDetails",
+                                "type": "object"
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "PaymentRequest": {
+                "title": "PaymentRequest",
+                "properties": {
+                    "payment_method": {
+                        "type": "string",
+                        "enum": [
+                            "bank-transfer",
+                            "cash-on-delivery",
+                            "credit-card",
+                            "buy-now-pay-later",
+                            "gift-card"
+                        ]
+                    },
+                    "payment_details": {
+                        "type": "object",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/BankTransferDetails"
+                            },
+                            {
+                                "$ref": "#/components/schemas/CreditCardDetails"
+                            },
+                            {
+                                "$ref": "#/components/schemas/GiftCardDetails"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BuyNowPayLaterDetails"
+                            },
+                            {
+                                "title": "CashOnDeliveryDetails",
+                                "type": "object"
+                            }
+                        ]
+                    }
+                },
+                "type": "object"
+            },
+            "CreditCardDetails": {
+                "properties": {
+                    "credit_card_number": {
+                        "type": "string"
+                    },
+                    "expiration_date": {
+                        "type": "string"
+                    },
+                    "cvv": {
+                        "type": "string"
+                    },
+                    "card_holder_name": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "GiftCardDetails": {
+                "properties": {
+                    "gift_card_number": {
+                        "type": "string"
+                    },
+                    "validation_code": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "CashOnDeliveryDetails": {
+                "description": "Placeholder for Cash on Delivery payment method",
+                "type": "object"
+            },
+            "BankTransferDetails": {
+                "properties": {
+                    "bank_name": {
+                        "type": "string"
+                    },
+                    "account_name": {
+                        "type": "string"
+                    },
+                    "account_number": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "BuyNowPayLaterDetails": {
+                "properties": {
+                    "monthly_installments": {
+                        "type": "string"
                     }
                 },
                 "type": "object"
@@ -3258,8 +4978,12 @@
                 "title": "InvoiceResponse",
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "example": "01JFG8Q5XKZJY4BEYQ87PC2Q1Y"
+                    },
+                    "user_id": {
+                        "type": "string",
+                        "example": "01JFG8Q5XKZJY4BEYQ87PC2Q1Y"
                     },
                     "invoice_date": {
                         "type": "string",
@@ -3269,7 +4993,7 @@
                         "type": "string",
                         "example": "INV-2022000002"
                     },
-                    "billing_address": {
+                    "billing_street": {
                         "type": "string"
                     },
                     "billing_city": {
@@ -3281,23 +5005,20 @@
                     "billing_state": {
                         "type": "string"
                     },
-                    "billing_postcode": {
+                    "billing_postal_code": {
                         "type": "string"
+                    },
+                    "additional_discount_percentage": {
+                        "type": "number"
+                    },
+                    "additional_discount_amount": {
+                        "type": "number"
+                    },
+                    "subtotal": {
+                        "type": "number"
                     },
                     "total": {
                         "type": "number"
-                    },
-                    "payment_method": {
-                        "type": "string",
-                        "example": "Cash on Delivery"
-                    },
-                    "payment_account_name": {
-                        "type": "string",
-                        "example": "Jogn Doe"
-                    },
-                    "payment_account_number": {
-                        "type": "string",
-                        "example": "0987654345"
                     },
                     "status": {
                         "type": "string",
@@ -3307,11 +5028,15 @@
                         "type": "string",
                         "example": ""
                     },
-                    "invoice_items": {
+                    "invoicelines": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/InvoiceLineResponse"
                         }
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2022-08-01 08:24:56"
                     }
                 },
                 "type": "object"
@@ -3320,10 +5045,24 @@
                 "title": "InvoiceLineResponse",
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "example": "01JFG8Q5XKZJY4BEYQ87PC2Q1Y"
+                    },
+                    "invoice_id": {
+                        "type": "string",
+                        "example": "01JFG8Q5XKZJY4BEYQ87PC2Q1Y"
+                    },
+                    "product_id": {
+                        "type": "string",
+                        "example": "01JFG8Q5XKZJY4BEYQ87PC2Q1Y"
                     },
                     "unit_price": {
+                        "type": "number"
+                    },
+                    "discount_percentage": {
+                        "type": "number"
+                    },
+                    "discounted_price": {
                         "type": "number"
                     },
                     "quantity": {
@@ -3349,29 +5088,28 @@
                         "example": 1.99
                     },
                     "category_id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "example": "01JFG8Q5XKZJY4BEYQ87PC2Q1Y"
                     },
                     "brand_id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "example": "01JFG8Q5XKZJY4BEYQ87PC2Q1Y"
                     },
                     "product_image_id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "example": "01JFG8Q5XKZJY4BEYQ87PC2Q1Y"
                     },
                     "is_location_offer": {
-                        "type": "integer",
+                        "type": "boolean",
                         "example": 1
                     },
                     "is_rental": {
-                        "type": "integer",
+                        "type": "boolean",
                         "example": 0
                     },
                     "co2_rating": {
                         "type": "string",
-                        "enum": ["A", "B", "C", "D", "E"],
-                        "example": "B"
+                        "example": "A"
                     }
                 },
                 "type": "object"
@@ -3380,8 +5118,8 @@
                 "title": "ProductResponse",
                 "properties": {
                     "id": {
-                        "type": "integer",
-                        "example": 1
+                        "type": "string",
+                        "example": "01JFG8Q5XKZJY4BEYQ87PC2Q1Y"
                     },
                     "name": {
                         "type": "string",
@@ -3396,17 +5134,20 @@
                         "example": 9.99
                     },
                     "is_location_offer": {
-                        "type": "integer",
+                        "type": "boolean",
                         "example": 1
                     },
                     "is_rental": {
-                        "type": "integer",
+                        "type": "boolean",
+                        "example": 0
+                    },
+                    "in_stock": {
+                        "type": "boolean",
                         "example": 0
                     },
                     "co2_rating": {
                         "type": "string",
-                        "enum": ["A", "B", "C", "D", "E"],
-                        "example": "B"
+                        "example": "A"
                     },
                     "is_eco_friendly": {
                         "type": "boolean",
@@ -3445,62 +5186,127 @@
                     "title": {
                         "type": "string"
                     },
-                    "created_at": {
-                        "type": "string",
-                        "example": "2022-08-01 08:24:56"
-                    },
                     "id": {
-                        "type": "integer"
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductSpecRequest": {
+                "title": "ProductSpecRequest",
+                "required": ["product_id", "spec_name", "spec_value"],
+                "properties": {
+                    "product_id": {
+                        "type": "string"
+                    },
+                    "spec_name": {
+                        "type": "string",
+                        "example": "Weight"
+                    },
+                    "spec_value": {
+                        "type": "string",
+                        "example": "1.5"
+                    },
+                    "spec_unit": {
+                        "type": ["string", "null"],
+                        "example": "kg"
+                    }
+                },
+                "type": "object"
+            },
+            "ProductSpecResponse": {
+                "title": "ProductSpecResponse",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "product_id": {
+                        "type": "string"
+                    },
+                    "spec_name": {
+                        "type": "string"
+                    },
+                    "spec_value": {
+                        "type": "string"
+                    },
+                    "spec_unit": {
+                        "type": ["string", "null"]
                     }
                 },
                 "type": "object"
             },
             "UserRequest": {
                 "title": "UserRequest",
+                "required": ["first_name", "last_name", "email", "password"],
                 "properties": {
                     "first_name": {
                         "type": "string",
-                        "example": "John"
+                        "example": "John",
+                        "maxLength": 40
                     },
                     "last_name": {
                         "type": "string",
-                        "example": "Doe"
+                        "example": "Doe",
+                        "maxLength": 20
                     },
                     "address": {
-                        "type": "string",
-                        "example": "Street 1"
-                    },
-                    "city": {
-                        "type": "string",
-                        "example": "City"
-                    },
-                    "state": {
-                        "type": "string",
-                        "example": "State"
-                    },
-                    "country": {
-                        "type": "string",
-                        "example": "Country"
-                    },
-                    "postcode": {
-                        "type": "string",
-                        "example": "1234AA"
+                        "properties": {
+                            "street": {
+                                "type": "string",
+                                "example": "Street 1",
+                                "maxLength": 70
+                            },
+                            "house_number": {
+                                "type": "string",
+                                "example": "12",
+                                "maxLength": 10
+                            },
+                            "city": {
+                                "type": "string",
+                                "example": "City",
+                                "maxLength": 40
+                            },
+                            "state": {
+                                "type": "string",
+                                "example": "State",
+                                "maxLength": 40
+                            },
+                            "country": {
+                                "type": "string",
+                                "example": "Country",
+                                "maxLength": 40
+                            },
+                            "postal_code": {
+                                "type": "string",
+                                "example": "1234AA",
+                                "maxLength": 10
+                            }
+                        },
+                        "type": "object"
                     },
                     "phone": {
                         "type": "string",
-                        "example": "0987654321"
+                        "example": "0987654321",
+                        "maxLength": 24
                     },
                     "dob": {
+                        "description": "Must be a valid date between 18 and 75 years ago",
                         "type": "string",
+                        "format": "date",
                         "example": "1970-01-01"
+                    },
+                    "password": {
+                        "description": "Must include uppercase, lowercase, number, and symbol",
+                        "type": "string",
+                        "format": "password",
+                        "example": "SuperSecure@123",
+                        "minLength": 8
                     },
                     "email": {
                         "type": "string",
-                        "example": "john@doe.example"
-                    },
-                    "password": {
-                        "type": "string",
-                        "example": "super-secret"
+                        "format": "email",
+                        "example": "john@doe.example",
+                        "maxLength": 256
                     }
                 },
                 "type": "object"
@@ -3517,27 +5323,36 @@
                         "example": "Doe"
                     },
                     "address": {
-                        "type": "string",
-                        "example": "Street 1"
-                    },
-                    "city": {
-                        "type": "string",
-                        "example": "City"
-                    },
-                    "state": {
-                        "type": "string",
-                        "example": "State"
-                    },
-                    "country": {
-                        "type": "string",
-                        "example": "Country"
-                    },
-                    "postcode": {
-                        "type": "string",
-                        "example": "1234AA"
+                        "properties": {
+                            "street": {
+                                "type": "string",
+                                "example": "Street 1"
+                            },
+                            "house_number": {
+                                "type": ["string", "null"],
+                                "example": "12"
+                            },
+                            "city": {
+                                "type": "string",
+                                "example": "City"
+                            },
+                            "state": {
+                                "type": ["string", "null"],
+                                "example": "State"
+                            },
+                            "country": {
+                                "type": "string",
+                                "example": "Country"
+                            },
+                            "postal_code": {
+                                "type": ["string", "null"],
+                                "example": "1234AA"
+                            }
+                        },
+                        "type": "object"
                     },
                     "phone": {
-                        "type": "string",
+                        "type": ["string", "null"],
                         "example": "0987654321"
                     },
                     "dob": {
@@ -3549,7 +5364,23 @@
                         "example": "john@doe.example"
                     },
                     "id": {
-                        "type": "integer"
+                        "type": "string"
+                    },
+                    "provider": {
+                        "type": ["string", "null"]
+                    },
+                    "totp_enabled": {
+                        "type": "boolean"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "failed_login_attempts": {
+                        "type": ["integer", "null"]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "example": "2022-08-01 08:24:56"
                     }
                 },
                 "type": "object"
@@ -3692,5 +5523,63 @@
                 "scheme": "bearer"
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Brand",
+            "description": "Brand"
+        },
+        {
+            "name": "Cart",
+            "description": "Cart"
+        },
+        {
+            "name": "Category",
+            "description": "Category"
+        },
+        {
+            "name": "Contact",
+            "description": "Contact"
+        },
+        {
+            "name": "Favorite",
+            "description": "Favorite"
+        },
+        {
+            "name": "Image",
+            "description": "Image"
+        },
+        {
+            "name": "Invoice",
+            "description": "Invoice"
+        },
+        {
+            "name": "Payment",
+            "description": "Payment"
+        },
+        {
+            "name": "Postcode",
+            "description": "Postcode"
+        },
+        {
+            "name": "Product",
+            "description": "Product"
+        },
+        {
+            "name": "Product Spec",
+            "description": "Product Spec"
+        },
+        {
+            "name": "Report",
+            "description": "Report"
+        },
+        {
+            "name": "TOTP",
+            "description": "TOTP"
+        },
+        {
+            "name": "User",
+            "description": "User"
+        }
+    ]
 }
