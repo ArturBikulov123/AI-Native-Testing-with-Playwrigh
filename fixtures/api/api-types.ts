@@ -4,7 +4,7 @@ export type AuthType = 'Bearer' | 'Token' | 'Basic';
 /**
  * Parameters for making an API request.
  * @typedef {Object} ApiRequestParams
- * @property {'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH'} method - The HTTP method to use.
+ * @property {'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH' | 'QUERY'} method - The HTTP method to use.
  * @property {string} url - The endpoint URL for the request.
  * @property {string} [baseUrl] - The base URL to prepend to the endpoint.
  * @property {Record<string, unknown> | null} [body] - The request payload, if applicable.
@@ -12,7 +12,7 @@ export type AuthType = 'Bearer' | 'Token' | 'Basic';
  * @property {AuthType} [authType] - Authentication scheme to use (default: 'Bearer').
  */
 export type ApiRequestParams = {
-    method: 'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH';
+    method: 'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH' | 'QUERY';
     url: string;
     baseUrl?: string;
     body?: Record<string, unknown> | null;
