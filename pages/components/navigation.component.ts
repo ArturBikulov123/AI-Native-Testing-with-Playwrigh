@@ -95,7 +95,24 @@ export class NavigationComponent {
         return this.page.getByTestId('nav-sign-out');
     }
 
+    get cartLink(): Locator {
+        return this.page.getByTestId('nav-cart');
+    }
+
+    get cartQuantity(): Locator {
+        return this.page.getByTestId('cart-quantity');
+    }
+
     // ==================== Actions ====================
+
+    /**
+     * Opens the shopping cart / checkout page via the nav cart icon.
+     *
+     * @returns {Promise<void>}
+     */
+    async openCart(): Promise<void> {
+        await this.cartLink.click();
+    }
 
     /**
      * Navigates to the home page via the navigation link.

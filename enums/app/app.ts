@@ -21,6 +21,17 @@ export enum Messages {
     EMAIL_FORMAT_INVALID = 'Email format is invalid',
     EMAIL_REQUIRED = 'Email is required',
     PASSWORD_REQUIRED = 'Password is required',
+    PRODUCT_ADDED_TO_CART = 'Product added to shopping cart.',
+    PAYMENT_SUCCESS = 'Payment was successful',
+}
+
+/** Checkout payment methods (values match the payment-method select options) */
+export enum PaymentMethods {
+    BANK_TRANSFER = 'Bank Transfer',
+    CASH_ON_DELIVERY = 'Cash on Delivery',
+    CREDIT_CARD = 'Credit Card',
+    BUY_NOW_PAY_LATER = 'Buy Now Pay Later',
+    GIFT_CARD = 'Gift Card',
 }
 
 /** API endpoint paths */

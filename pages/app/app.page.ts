@@ -30,7 +30,30 @@ export class AppPage {
         return this.page.getByRole('combobox', { name: 'sort' });
     }
 
+    get productCards(): Locator {
+        // Product cards carry a dynamic data-test="product-<id>"; a prefix
+        // attribute selector is required because getByTestId needs an exact id.
+        // eslint-disable-next-line playwright/no-raw-locators -- dynamic data-test id prefix
+        return this.page.locator('[data-test^="product-"]');
+    }
+
+    get firstAvailableProduct(): Locator {
+        // Any in-stock product satisfies the purchase flow; take the first.
+        // eslint-disable-next-line playwright/no-nth-methods -- first in-stock card is sufficient
+        return this.productCards.filter({ hasNotText: 'Out of stock' }).first();
+    }
+
     // ==================== Actions ====================
+
+    /**
+     * Opens the first in-stock product on the listing by clicking its card.
+     *
+     * @returns {Promise<void>} Resolves once navigation to the product detail
+     * page has been triggered.
+     */
+    async openFirstAvailableProduct(): Promise<void> {
+        await this.firstAvailableProduct.click();
+    }
 
     /**
      * Navigates to the application home page using the configured APP_URL.
