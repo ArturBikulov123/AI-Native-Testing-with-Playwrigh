@@ -7,7 +7,7 @@ import type { AuthType } from './api-types';
  *
  * @param {Object} params - The parameters for the request.
  * @param {APIRequestContext} params.request - The Playwright request object, used to make the HTTP request.
- * @param {string} params.method - The HTTP method to use (POST, GET, PUT, DELETE, PATCH).
+ * @param {string} params.method - The HTTP method to use (POST, GET, PUT, DELETE, PATCH, QUERY).
  * @param {string} params.url - The URL to send the request to.
  * @param {string} [params.baseUrl] - The base URL to prepend to the request URL.
  * @param {Record<string, unknown> | null} [params.body=null] - The body to send with the request (for POST and PUT requests).
@@ -27,7 +27,7 @@ export async function apiRequest({
     authType = 'Bearer',
 }: {
     request: APIRequestContext;
-    method: 'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH';
+    method: 'POST' | 'GET' | 'PUT' | 'DELETE' | 'PATCH' | 'QUERY';
     url: string;
     baseUrl?: string;
     body?: Record<string, unknown> | null;
@@ -69,6 +69,14 @@ export async function apiRequest({
             break;
         case 'PATCH':
             response = await request.patch(fullUrl, options);
+            break;
+        case 'QUERY':
+            // Playwright has no dedicated helper for the HTTP QUERY method
+            // (RFC 9110 draft), so route it through the generic fetch API.
+            response = await request.fetch(fullUrl, {
+                method: 'QUERY',
+                ...options,
+            });
             break;
         default:
             throw new Error(`Unsupported HTTP method: ${method}`);
